@@ -26,6 +26,7 @@
 		maxSizeX: null, // maximum column width of an item
 		minSizeY: 1, // minumum row height of an item
 		maxSizeY: null, // maximum row height of an item
+		dragCalculationDelay: 350, // Adds delay on position calculation when moving item. Good when you need small rowHeight :)
 		saveGridItemCalculatedHeightInMobile: false, // grid item height in mobile display. true- to use the calculated height by sizeY given
 		resizable: { // options to pass to resizable handler
 			enabled: true,
@@ -1357,7 +1358,22 @@
 					});
 				}
 
+				var dragTimeout,
+					// drag calculation delay... 
+					dragCalculationDelay = scope.$parent.$parent.gridster.dragCalculationDelay || 350;
+				
 				function drag(event) {
+					if(dragTimeout) {
+						$timeout.cancel(dragTimeout);
+						dragTimeout = false;
+					}
+
+					dragTimeout = $timeout(function () {
+						dragInternal(event)
+					}, dragCalculationDelay);
+				}
+				
+				function dragInternal(event) {
 					var oldRow = item.row,
 						oldCol = item.col,
 						hasCallback = gridster.draggable && gridster.draggable.drag,
